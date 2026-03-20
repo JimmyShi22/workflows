@@ -5,7 +5,7 @@ on:
     secrets:
       anthropic_api_key:
         required: false
-      github_token:
+      token:
         required: false
 
 concurrency:
@@ -78,7 +78,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   claude-review:
     needs: authorize
@@ -124,7 +124,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           track_progress: false
           prompt: |
             REPO: ${{ github.repository }}
