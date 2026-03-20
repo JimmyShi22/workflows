@@ -135,3 +135,4 @@ jobs:
             When done, post your full review summary as a PR comment using:
             gh pr comment ${{ github.event.pull_request.number || github.event.issue.number }} --body "<your review>"
           claude_args: "--allowedTools Skill,SlashCommand,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Glob,Grep"
+
