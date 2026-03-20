@@ -3,10 +3,12 @@ name: Dependabot Security Fix
 on:
   workflow_call:
     secrets:
+      gh_pat:
+        required: true
       anthropic_api_key:
-        required: false
+        required: true
       token:
-        required: false
+        required: true
 
 jobs:
   check-and-fix-security:
@@ -31,7 +33,7 @@ jobs:
           # runner pre-sets for the gh CLI (pointing at GITHUB_TOKEN). The PAT is then
           # applied inline on the gh command so it always wins.
           # Requires a fine-grained PAT with "Dependabot alerts: Read" permission.
-          GH_TOKEN: ${{ secrets.GH_SECURITY_PAT }}
+          GH_TOKEN: ${{ secrets.gh_pat }}
           # Needed for listing PRs (pull-requests: write is granted in the permissions block).
           # GH_SECURITY_PAT only has Dependabot alerts read access, not PR access.
           WORKFLOW_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
