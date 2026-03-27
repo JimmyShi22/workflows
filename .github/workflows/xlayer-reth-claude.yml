@@ -7,6 +7,8 @@ on:
         required: true
       token:
         required: true
+      org_read_token:
+        required: true
 
 concurrency:
   group: claude-${{ github.event.pull_request.number || github.event.issue.number }}
@@ -28,7 +30,7 @@ jobs:
       - name: Check actor authorization
         id: check
         env:
-          GH_TOKEN: ${{ secrets.token }}
+          GH_TOKEN: ${{ secrets.org_read_token }}
         run: |
           PR_AUTHOR="${{ github.event.issue.user.login }}"
           if [ -z "$PR_AUTHOR" ]; then
