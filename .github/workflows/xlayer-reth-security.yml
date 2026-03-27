@@ -9,6 +9,10 @@ on:
         required: true
       other_gh_token:
         required: true
+      jira_auth:
+        required: true
+      jira_account_id:
+        required: true
 
 jobs:
   check-and-fix-security:
