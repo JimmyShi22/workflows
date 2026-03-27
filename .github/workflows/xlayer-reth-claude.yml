@@ -37,7 +37,9 @@ jobs:
           ACTOR="${{ github.actor }}"
           echo "PR/Issue author: $PR_AUTHOR"
           echo "Triggered by: $ACTOR"
-          if ! gh api repos/okx/xlayer-reth/collaborators --paginate --jq '.[].login' | grep -qx "$ACTOR"; then
+          echo "Collaborators:"
+          gh api repos/okx/xlayer-reth/collaborators --paginate --jq '.[].login'
+          if ! gh api repos/okx/xlayer-reth/collaborators/$ACTOR --silent 2>/dev/null; then
             echo "Unauthorized: '$ACTOR' is not a collaborator of okx/xlayer-reth"
             echo "authorized=false" >> "$GITHUB_OUTPUT"
             exit 0
