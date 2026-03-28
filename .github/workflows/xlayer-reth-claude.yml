@@ -47,11 +47,11 @@ jobs:
             exit 0
           fi
           echo "Authorized: '$ACTOR' is a member of blockchain-members team"
-          if [[ "$ACTOR" != "$PR_AUTHOR" ]]; then
-            echo "Unauthorized: '$ACTOR' is not the PR/issue author ('$PR_AUTHOR')"
-            echo "authorized=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # if [[ "$ACTOR" != "$PR_AUTHOR" ]]; then
+          #   echo "Unauthorized: '$ACTOR' is not the PR/issue author ('$PR_AUTHOR')"
+          #   echo "authorized=false" >> "$GITHUB_OUTPUT"
+          #   exit 0
+          # fi
           echo "authorized=true" >> "$GITHUB_OUTPUT"
 
   claude:
