@@ -13,6 +13,8 @@ on:
         required: true
       jira_account_id:
         required: true
+      jira_domain:
+        required: true
 
 jobs:
   check-and-fix-security:
@@ -251,7 +253,7 @@ jobs:
                      "assignee": { "accountId": $account_id }
                    }
                  }')
-               curl -s -X POST "https://JIRA_DOMAIN/rest/api/3/issue" \
+               curl -s -X POST "https://$JIRA_DOMAIN/rest/api/3/issue" \
                  -H "Authorization: Basic $JIRA_AUTH_B64" \
                  -H "Content-Type: application/json" \
                  -d "$BODY" | jq -r '.key'
