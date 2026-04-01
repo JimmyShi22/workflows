@@ -54,7 +54,7 @@ jobs:
         env:
           GH_TOKEN: ${{ inputs.gh_pat }}
         with:
-          direct_prompt: ${{ inputs.comment_body }}
+          prompt: ${{ inputs.comment_body }}
           anthropic_api_key: ${{ inputs.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep"
