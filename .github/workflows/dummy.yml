@@ -42,3 +42,19 @@ jobs:
           fi
           echo "Authorized: '$ACTOR' is a member of blockchain-members team"
           echo "authorized=true" >> "$GITHUB_OUTPUT"
+
+  # notify-result:
+  #   if: ${{ always() }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: POST success callback
+  #       run: |
+  #         curl -X POST "$CALLBACK_URL" \
+  #           -H "Content-Type: application/json" \
+  #           -d '{
+  #             "workflow": "Build",
+  #             "run_id": "'"${{ github.event.workflow_run.id }}"'",
+  #             "conclusion": "success"
+  #           }'
+  #       env:
+  #         CALLBACK_URL: ${{ secrets.CALLBACK_URL }}
