@@ -64,11 +64,13 @@ jobs:
             You are an agentic CI assistant.
       
             Your task:
-            1. Determine the changed files for this PR using git.
-               - Use: git fetch origin and compare base vs HEAD
-               - Prefer: git diff --name-only origin/${{ github.base_ref }}...HEAD
       
-            2. From the changed files, infer which stacks are affected:
+            1. Determine the changed files for this PR using git.
+               - Run:
+                 git fetch origin
+                 git diff --name-only origin/${{ github.base_ref }}...HEAD
+      
+            2. Infer affected stacks:
       
                - Go → go.mod, *.go
                - Rust → Cargo.toml, Cargo.lock, *.rs, rust/**
@@ -76,43 +78,53 @@ jobs:
                - Node/TypeScript → package.json, lockfiles, tsconfig.json, *.js, *.jsx, *.ts, *.tsx
       
             3. Decide execution:
-               - If only one stack is touched → run that stack
-               - If multiple stacks are touched → run ALL relevant stacks
-               - If unclear → inspect repo structure before deciding
+               - One stack → run it
+               - Multiple stacks → run ALL
+               - Unclear → inspect repo
       
             4. For EACH selected stack:
-               - Ensure the environment/toolchain is available
+               - Ensure toolchain is installed
                - Install dependencies if needed
-               - Run minimal but meaningful checks:
       
-                 Go:
-                   go test ./...
-                   go vet ./...
+               Then run BOTH formatting AND tests:
       
-                 Rust:
-                   cargo fmt --all --check
-                   cargo test --all
+               Go:
+                 go fmt ./...
+                 go vet ./...
+                 go test ./...
       
-                 Python:
-                   pip install -r requirements.txt OR install via pyproject
-                   pytest -q OR python -m unittest
+               Rust:
+                 cargo fmt --all -- --check
+                 cargo clippy --all-targets --all-features -- -D warnings
+                 cargo test --all
       
-                 Node/TS:
-                   npm ci / yarn / pnpm install
-                   npm run lint --if-present
-                   npm test --if-present
-                   npm run build --if-present
+               Python:
+                 pip install -r requirements.txt OR install via pyproject
+                 ruff check . OR flake8 . (if available)
+                 black --check . (if available)
+                 pytest -q OR python -m unittest
       
-            5. If failures occur:
+               Node/TypeScript:
+                 install deps (npm/yarn/pnpm)
+                 npm run format --if-present
+                 npm run lint --if-present
+                 npm test --if-present
+                 npm run build --if-present
+      
+            5. If formatting issues are found:
+               - Fix them automatically (e.g. run formatters without --check)
+               - Commit minimal changes if appropriate
+      
+            6. If failures occur:
                - Diagnose root cause
-               - Make minimal, safe fixes
-               - Re-run the relevant checks
+               - Apply minimal fixes
+               - Re-run checks
       
-            6. Output:
-               - Which stacks were detected
-               - What commands were executed
-               - Results (pass/fail)
-               - Any fixes applied
+            7. Output:
+               - Detected stacks
+               - Commands run
+               - Results
+               - Fixes applied
       
             Follow CLAUDE.md if present. Keep changes minimal and scoped.
       
