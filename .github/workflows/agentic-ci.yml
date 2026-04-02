@@ -1,0 +1,124 @@
+name: Dummy
+
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      owner:
+        required: true
+        type: string
+      repo:
+        required: true
+        type: string
+      pr_number:
+        required: true
+        type: string
+      head_sha:
+        required: true
+        type: string
+      comment_body:
+        required: true
+        type: string
+      anthropic_api_key:
+        required: true
+        type: string
+      gh_pat:
+        required: false
+        type: string
+
+concurrency:
+  group: claude-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run-ci-with-ai:
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.head_sha }}
+          token: ${{ inputs.gh_pat }}
+          
+      - name: Run CI based on repo
+        id: agentic-ci
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ inputs.gh_pat }}
+        with:
+          prompt: |
+            Repository: ${{ inputs.owner }}/${{ inputs.repo }}
+            PR: #${{ inputs.pr_number }}
+      
+            User instruction (if any):
+            ${{ inputs.comment_body }}
+      
+            You are an agentic CI assistant.
+      
+            Your task:
+            1. Determine the changed files for this PR using git.
+               - Use: git fetch origin and compare base vs HEAD
+               - Prefer: git diff --name-only origin/${{ github.base_ref }}...HEAD
+      
+            2. From the changed files, infer which stacks are affected:
+      
+               - Go → go.mod, *.go
+               - Rust → Cargo.toml, Cargo.lock, *.rs, rust/**
+               - Python → pyproject.toml, requirements.txt, poetry.lock, Pipfile.lock, *.py
+               - Node/TypeScript → package.json, lockfiles, tsconfig.json, *.js, *.jsx, *.ts, *.tsx
+      
+            3. Decide execution:
+               - If only one stack is touched → run that stack
+               - If multiple stacks are touched → run ALL relevant stacks
+               - If unclear → inspect repo structure before deciding
+      
+            4. For EACH selected stack:
+               - Ensure the environment/toolchain is available
+               - Install dependencies if needed
+               - Run minimal but meaningful checks:
+      
+                 Go:
+                   go test ./...
+                   go vet ./...
+      
+                 Rust:
+                   cargo fmt --all --check
+                   cargo test --all
+      
+                 Python:
+                   pip install -r requirements.txt OR install via pyproject
+                   pytest -q OR python -m unittest
+      
+                 Node/TS:
+                   npm ci / yarn / pnpm install
+                   npm run lint --if-present
+                   npm test --if-present
+                   npm run build --if-present
+      
+            5. If failures occur:
+               - Diagnose root cause
+               - Make minimal, safe fixes
+               - Re-run the relevant checks
+      
+            6. Output:
+               - Which stacks were detected
+               - What commands were executed
+               - Results (pass/fail)
+               - Any fixes applied
+      
+            Follow CLAUDE.md if present. Keep changes minimal and scoped.
+      
+          anthropic_api_key: ${{ inputs.anthropic_api_key }}
+          github_token: ${{ inputs.gh_pat }}
+          claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep"
+          show_full_output: true
+          
+      # TODO: report to Lark?
