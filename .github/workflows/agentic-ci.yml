@@ -41,7 +41,10 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          cache-on-failure: false
+          cache-on-failure: false     
+          workspaces: |
+            ". -> target"
+            "rust -> rust/target"
           
       - name: Run CI based on repo
         id: agentic-ci
