@@ -33,6 +33,7 @@ jobs:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
           ref: ${{ inputs.head_sha }}
           token: ${{ secrets.GH_TOKEN }}
+          submodules: recursive
 
       - name: Free up disk space
         run: |
@@ -64,8 +65,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: false
-
-# TODO: add git submodule update --init step
 
       - name: Run sweep-check
         id: sweep_check
