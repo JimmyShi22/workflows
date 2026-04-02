@@ -107,15 +107,18 @@ jobs:
             ICON=":x:"
             STATUS="failed"
           fi
-
+      
           BODY="${ICON} **XLayer Reth CI ${STATUS}** for commit \`${{ inputs.head_sha }}\`
-
+      
           | Step | Result |
           |------|--------|
-          | sweep-check | ${{ steps.sweep_check.outcome }} |
-
+          | format-check | ${{ steps.format_check.outcome }} |
+          | sweep-check   | ${{ steps.sweep_check.outcome }} |
+          | clippy        | ${{ steps.clippy_check.outcome }} |
+          | tests         | ${{ steps.test.outcome }} |
+      
           [View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-
+      
           gh issue comment ${{ inputs.pr_number }} \
             --repo ${{ inputs.owner }}/${{ inputs.repo }} \
             --body "$BODY"
