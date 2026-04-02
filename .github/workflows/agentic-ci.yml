@@ -38,6 +38,10 @@ jobs:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
           ref: ${{ inputs.head_sha }}
           token: ${{ secrets.GH_TOKEN }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: false
           
       - name: Run CI based on repo
         id: agentic-ci
