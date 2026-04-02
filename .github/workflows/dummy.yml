@@ -40,24 +40,23 @@ jobs:
           fetch-depth: 1
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
           ref: ${{ inputs.head_sha }}
-          token: ${{ inputs.gh_pat }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
         env:
-          GH_TOKEN: ${{ inputs.gh_pat }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}. ${{ inputs.comment_body }}"
-          anthropic_api_key: ${{ inputs.anthropic_api_key }}
-          github_token: ${{ inputs.gh_pat }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep"
           show_full_output: true
     
       - name: Post result as comment
         if: always()
         env:
-          GH_TOKEN: ${{ inputs.gh_pat }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           RESPONSE=$(jq -r '.[] | select(.type == "result") | .result' /home/runner/work/_temp/claude-execution-output.json)
           if [ -n "$RESPONSE" ]; then
