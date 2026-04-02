@@ -66,6 +66,9 @@ jobs:
         with:
           toolchain: ${{ steps.rust-version.outputs.version }}
           components: rustfmt, clippy
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: false
