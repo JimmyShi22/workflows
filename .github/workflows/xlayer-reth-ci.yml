@@ -136,7 +136,7 @@ jobs:
             ICON=":x:"
             STATUS="failed"
           fi
-      
+
           status_icon() {
             case "$1" in
               success)   echo ":white_check_mark: success" ;;
@@ -146,7 +146,10 @@ jobs:
               *)         echo ":black_circle: unknown" ;;
             esac
           }
-      
+
+          BODY=$(cat <<EOF
+          ${ICON} **XLayer Reth CI ${STATUS}** for commit \`${{ inputs.head_sha }}\`
+
           | Step | Result |
           |------|--------|
           | format-check | $(status_icon '${{ needs.basic-checks.outputs.format_check }}') |
@@ -155,10 +158,10 @@ jobs:
           | clippy       | $(status_icon '${{ needs.basic-checks.outputs.clippy_check }}') |
           | tests        | $(status_icon '${{ needs.basic-checks.outputs.test }}') |
 
-          [View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          [View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+          )
 
-          BODY="${ICON} **XLayer Reth CI ${STATUS}** for commit \`${{ inputs.head_sha }}\`
-      
           gh issue comment ${{ inputs.pr_number }} \
             --repo ${{ inputs.owner }}/${{ inputs.repo }} \
             --body "$BODY"
