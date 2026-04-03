@@ -79,6 +79,18 @@ jobs:
             . -> target
             deps/optimism/rust -> target
 
+      - name: Run tests
+        id: test
+        timeout-minutes: 65
+        run: |
+          timeout 60m just test || {
+            code=$?
+            if [ $code -eq 124 ]; then
+              echo "::error::Tests timed out after 60 minutes"
+            fi
+            exit $code
+          }
+
       - name: Run format check
         id: format_check
         run: |
@@ -103,12 +115,6 @@ jobs:
         id: clippy_check
         run: |
           just check-clippy
-
-      - name: Run tests
-        id: test
-        timeout-minutes: 60
-        run: |
-          just test
 
       - name: Report result to PR
         if: ${{ always() && inputs.pr_number != '' }}
