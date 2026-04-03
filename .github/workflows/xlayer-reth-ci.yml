@@ -21,7 +21,7 @@ env:
   DEFAULT_BRANCH: refs/heads/main
 
 concurrency:
-    group: agentic-ci-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
+    group: xlayer-reth-ci-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
     cancel-in-progress: false
  
 jobs:
