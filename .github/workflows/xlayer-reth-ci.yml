@@ -83,6 +83,10 @@ jobs:
             . -> target
             deps/optimism/rust -> target
 
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+
       - name: Run format check
         id: format_check
         run: |
