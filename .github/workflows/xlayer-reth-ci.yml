@@ -17,6 +17,9 @@ on:
         required: true
         type: string
 
+env:
+  DEFAULT_BRANCH: refs/heads/main
+
 concurrency:
     group: agentic-ci-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
     cancel-in-progress: false
@@ -81,8 +84,16 @@ jobs:
         run: |
           just check-format
 
+      - name: Run node check
+        id: node_check
+        if: github.ref != ${{ env.DEFAULT_BRANCH }}
+        run: |
+          # When running in PR, run this fast check.
+          cargo c -p xlayer-reth-node
+
       - name: Run sweep-check
         id: sweep_check
+        if: github.ref == ${{ env.DEFAULT_BRANCH }}
         run: |
           # Upstream flashblocks inner dependency reth-optimism-primitives does not
           # specify feats reth-codec and serde-bincode-compat. So we skip.
@@ -116,6 +127,7 @@ jobs:
           | Step | Result |
           |------|--------|
           | format-check | ${{ steps.format_check.outcome }} |
+          | node-check   | ${{ steps.node_check.outcome }} |
           | sweep-check   | ${{ steps.sweep_check.outcome }} |
           | clippy        | ${{ steps.clippy_check.outcome }} |
           | tests         | ${{ steps.test.outcome }} |
