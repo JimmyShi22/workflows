@@ -1,0 +1,72 @@
+name: XLayer Reth AI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      owner:
+        required: true
+        type: string
+      repo:
+        required: true
+        type: string
+      pr_number:
+        required: true
+        type: string
+      head_sha:
+        required: true
+        type: string
+
+concurrency:
+  group: xlayer-reth-ai-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  claude:
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.head_sha }}
+          token: ${{ secrets.GH_TOKEN }}
+          submodules: recursive
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}. ${{ inputs.comment_body }}"
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GH_TOKEN }}
+          claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep"
+          show_full_output: true
+
+  report:
+    needs: [claude]
+    if: ${{ always() && inputs.pr_number != '' }}
+    permissions:
+      pull-requests: write
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post result as comment
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          RESPONSE=$(jq -r '.[] | select(.type == "result") | .result' /home/runner/work/_temp/claude-execution-output.json)
+          if [ -n "$RESPONSE" ]; then
+            gh issue comment ${{ inputs.pr_number }} \
+              --repo ${{ inputs.owner }}/${{ inputs.repo }} \
+              --body "$RESPONSE"
+          fi
