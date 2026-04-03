@@ -28,10 +28,14 @@ jobs:
   basic-checks:
     permissions:
       contents: read
-      pull-requests: write
-      issues: write
     timeout-minutes: 90
     runs-on: ubuntu-latest
+    outputs:
+      format_check: ${{ steps.format_check.outcome }}
+      node_check: ${{ steps.node_check.outcome }}
+      sweep_check: ${{ steps.sweep_check.outcome }}
+      clippy_check: ${{ steps.clippy_check.outcome }}
+      test: ${{ steps.test.outcome }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -79,18 +83,6 @@ jobs:
             . -> target
             deps/optimism/rust -> target
 
-      - name: Run tests
-        id: test
-        timeout-minutes: 65
-        run: |
-          timeout 60m just test || {
-            code=$?
-            if [ $code -eq 124 ]; then
-              echo "::error::Tests timed out after 60 minutes"
-            fi
-            exit $code
-          }
-
       - name: Run format check
         id: format_check
         run: |
@@ -116,12 +108,24 @@ jobs:
         run: |
           just check-clippy
 
+      - name: Run tests
+        id: test
+        run: |
+          just test
+
+  report:
+    needs: [basic-checks]
+    if: ${{ always() && inputs.pr_number != '' }}
+    permissions:
+      pull-requests: write
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
       - name: Report result to PR
-        if: ${{ always() && inputs.pr_number != '' }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          if [ "${{ job.status }}" = "success" ]; then
+          if [ "${{ needs.basic-checks.result }}" = "success" ]; then
             ICON=":white_check_mark:"
             STATUS="passed"
           else
@@ -133,11 +137,11 @@ jobs:
       
           | Step | Result |
           |------|--------|
-          | format-check | ${{ steps.format_check.outcome }} |
-          | node-check   | ${{ steps.node_check.outcome }} |
-          | sweep-check   | ${{ steps.sweep_check.outcome }} |
-          | clippy        | ${{ steps.clippy_check.outcome }} |
-          | tests         | ${{ steps.test.outcome }} |
+          | format-check | ${{ needs.basic-checks.outputs.format_check }} |
+          | node-check   | ${{ needs.basic-checks.outputs.node_check }} |
+          | sweep-check  | ${{ needs.basic-checks.outputs.sweep_check }} |
+          | clippy       | ${{ needs.basic-checks.outputs.clippy_check }} |
+          | tests        | ${{ needs.basic-checks.outputs.test }} |
       
           [View run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
       
