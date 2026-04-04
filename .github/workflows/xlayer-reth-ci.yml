@@ -110,7 +110,7 @@ jobs:
   report:
     needs: [basic-checks]
     # Skip reporting on merging to default branch.
-    if: ${{ always() && inputs.pr_number != '' && github.ref != 'refs/heads/main' }}
+    if: ${{ always() && inputs.pr_number != '' }}
     permissions:
       pull-requests: write
       issues: write
