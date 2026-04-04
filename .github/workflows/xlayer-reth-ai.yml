@@ -51,7 +51,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}. ${{ inputs.comment_body }}"
+          prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}.
+          Before responding, use the Bash tool to run `gh issue view ${{ inputs.pr_number }} --repo ${{ inputs.owner }}/${{ inputs.repo }} --comments`
+          to read the full issue/PR description and all previous comments as context. Then address the following request: ${{ inputs.comment_body }}"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GH_TOKEN }}
           claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep,WebFetch"
