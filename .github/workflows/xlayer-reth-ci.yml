@@ -22,7 +22,7 @@ env:
 
 concurrency:
     group: xlayer-reth-ci-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
-    cancel-in-progress: false
+    cancel-in-progress: true
  
 jobs:
   basic-checks:
