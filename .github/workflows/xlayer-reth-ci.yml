@@ -29,8 +29,7 @@ jobs:
     permissions:
       contents: read
     timeout-minutes: 60
-    runs-on:
-      labels: ubuntu-24.04-4core 
+    runs-on: xlayer-runner 
     outputs:
       format_check: ${{ steps.format_check.outcome }}
       compile_check: ${{ steps.compile_check.outcome }}
