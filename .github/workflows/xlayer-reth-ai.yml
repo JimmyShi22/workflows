@@ -54,7 +54,7 @@ jobs:
           prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}. ${{ inputs.comment_body }}"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GH_TOKEN }}
-          claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep"
+          claude_args: "--allowedTools Bash,Read,Write,Edit,Glob,Grep,WebFetch"
           show_full_output: true
 
       - name: Parse Claude Response
