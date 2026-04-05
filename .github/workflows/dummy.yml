@@ -70,7 +70,10 @@ jobs:
               -f state="$state" \
               -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
               -f description="$context $state" \
-              -f context="xlayer-reth-ci / $context"
+              -f context="dummy-ci / $context"
           }
+
+          # Sleep first
+          sleep 3
 
           post_status "basic-ci"  "${{ needs.test.outputs.dummy-ci }}"
