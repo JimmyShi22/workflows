@@ -16,6 +16,9 @@ on:
       head_sha:
         required: true
         type: string
+      comment_body:
+        required: false
+        type: string
 
 concurrency:
     group: agentic-ci-${{ inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}
