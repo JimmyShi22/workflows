@@ -51,7 +51,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          model: claude-haiku-4-5-20251001 
           prompt: "Repository: ${{ inputs.owner }}/${{ inputs.repo }}, PR #${{ inputs.pr_number }}.
           Before responding, use the Bash tool to run `gh issue view ${{ inputs.pr_number }} --repo ${{ inputs.owner }}/${{ inputs.repo }} --comments`
           to read the full issue/PR description and all previous comments as context. Then address the following request: ${{ inputs.comment_body }}"
