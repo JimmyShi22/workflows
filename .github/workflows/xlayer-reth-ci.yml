@@ -39,6 +39,15 @@ jobs:
       clippy_check: ${{ steps.clippy_check.outcome }}
       test: ${{ steps.test.outcome }}
     steps:
+      - name: Post workflow run link
+        if: ${{ inputs.pr_number != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh issue comment ${{ inputs.pr_number }} \
+            --repo ${{ inputs.owner }}/${{ inputs.repo }} \
+            --body "🔧 CI running — [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
